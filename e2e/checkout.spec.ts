@@ -27,7 +27,7 @@ test('pagamento recusado preserva os itens do carrinho', async ({ page }) => {
   await toReview(page)
   await page.getByRole('button', { name: 'Confirmar compra' }).click()
   await expect(page.getByRole('heading', { name: 'Pedido recusado' })).toBeVisible({ timeout: 10_000 })
-  await page.goto('/cart'); await expect(page.getByRole('main').getByRole('listitem').filter({ hasText: /Neon Skies/ }).first()).toBeVisible()
+  await page.goto('/cart'); await expect(page.getByRole('main').getByRole('listitem').filter({ hasText: /Pixel Pets/ }).first()).toBeVisible()
 })
 
 test('preço alterado durante a revisão exige nova confirmação', async ({ page }) => {

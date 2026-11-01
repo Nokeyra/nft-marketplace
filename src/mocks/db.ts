@@ -1,3 +1,4 @@
+import { APES } from '../lib/images'
 import type { Nft, Order, Profile, Wallet } from '../lib/types'
 
 // Banco simulado em memória, persistido em localStorage para sobreviver a refresh.
@@ -10,18 +11,11 @@ export type DbOrder = Order & { userId: string; outcome: 'confirm' | 'decline' }
 export const sha256 = async (s: string) =>
   [...new Uint8Array(await crypto.subtle.digest('SHA-256', new TextEncoder().encode(s)))].map((b) => b.toString(16).padStart(2, '0')).join('')
 
-const IMAGES = [
-  '/nfts/ape-1.png',
-  '/nfts/ape-2.png',
-  '/nfts/ape-3.png',
-  '/nfts/ape-4.png',
-]
-
 const COLLECTIONS = ['Cosmic Drift', 'Pixel Pets', 'Neon Skies', 'Abstract Minds']
 const seedNfts = (): Nft[] =>
   Array.from({ length: 36 }, (_, i) => ({
     id: String(i + 1), name: `${COLLECTIONS[i % 4]} #${100 + i}`, collection: COLLECTIONS[i % 4],
-    image: IMAGES[i % IMAGES.length],
+    image: APES[(i + Math.floor(i / 4)) % APES.length],
     priceEth: `${Math.floor(((i * 37) % 90) / 10)}.${String(((i * 37) % 90) + 10).padStart(2, '0')}`,
     stock: i % 7 === 0 ? 0 : (i % 5) + 1, version: 1,
   }))

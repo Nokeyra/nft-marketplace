@@ -9,8 +9,14 @@
     "build": "tsc -b && vite build",
     "preview": "vite preview --port 4173",
     "typecheck": "tsc -b --noEmit",
+    "lint": "eslint .",
     "test:e2e": "playwright test",
-    "lighthouse": "echo 'TODO: lighthouse config'"
+    "lighthouse:home:mobile": "lighthouse http://localhost:4173/ --output=html --output=json --output-path=./lighthouse/home-mobile --chrome-flags=--headless=new --quiet",
+    "lighthouse:home:desktop": "lighthouse http://localhost:4173/ --preset=desktop --output=html --output=json --output-path=./lighthouse/home-desktop --chrome-flags=--headless=new --quiet",
+    "lighthouse:detail:mobile": "lighthouse http://localhost:4173/nft/2 --output=html --output=json --output-path=./lighthouse/detail-mobile --chrome-flags=--headless=new --quiet",
+    "lighthouse:detail:desktop": "lighthouse http://localhost:4173/nft/2 --preset=desktop --output=html --output=json --output-path=./lighthouse/detail-desktop --chrome-flags=--headless=new --quiet",
+    "lighthouse": "npm run lighthouse:home:mobile && npm run lighthouse:home:desktop && npm run lighthouse:detail:mobile && npm run lighthouse:detail:desktop",
+    "test:e2e:update": "playwright test --update-snapshots"
   },
   "dependencies": {
     "@radix-ui/react-slot": "^1.5.0",
@@ -25,15 +31,21 @@
     "tailwind-merge": "^3.7.0"
   },
   "devDependencies": {
+    "@eslint/js": "^10.0.1",
     "@mswjs/socket.io-binding": "^0.2.0",
     "@playwright/test": "^1.64.1",
     "@tailwindcss/vite": "^4.3.3",
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",
     "@vitejs/plugin-react": "^6.1.2",
+    "eslint": "^10.14.0",
+    "eslint-plugin-react-hooks": "^7.1.1",
+    "globals": "^17.13.0",
+    "lighthouse": "^13.6.0",
     "msw": "^2.15.0",
     "tailwindcss": "^4.3.3",
-    "typescript": "^7.0.2",
+    "typescript": "~6.0.0",
+    "typescript-eslint": "^8.72.1",
     "vite": "^8.3.5"
   },
   "msw": {

@@ -82,7 +82,7 @@ export function ProfileData() {
   const profile = useQuery({ queryKey: ['profile'], queryFn: api.profile })
   if (profile.isPending) return <div className="space-y-4" aria-busy><Skeleton className="h-8 w-1/3" /><Skeleton className="h-64" /></div>
   if (profile.isError) return <div role="alert">Falha ao carregar o perfil. <Button variant="outline" onClick={() => profile.refetch()}>Tentar novamente</Button></div>
-  return <ProfileForm key={profile.dataUpdatedAt} initial={profile.data} />
+  return <ProfileForm initial={profile.data} />
 }
 
 // ---------- Carteiras

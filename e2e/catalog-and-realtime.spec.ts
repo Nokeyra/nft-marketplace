@@ -14,15 +14,15 @@ test('busca, ordenação e paginação vivem na URL e sobrevivem ao refresh', as
 })
 
 test('NFT inexistente mostra estado de erro', async ({ page }) => {
-  await page.goto('/nft/9999'); await expect(page.getByRole('alert')).toContainText('não encontrado')
+  await page.goto('/nft/9999'); await expect(page.getByRole('alert').filter({ hasText: 'não encontrado' })).toBeVisible()
 })
 
 test('preço alterado via Socket.IO atualiza o resumo do carrinho aberto', async ({ page }) => {
   await page.goto('/login'); await page.getByRole('button', { name: 'Entrar' }).click()
   await page.goto('/nft/2'); await page.getByRole('button', { name: 'Comprar' }).click()
   await expect(page.getByRole('heading', { name: 'Carrinho' })).toBeVisible()
-  const before = await page.getByText(/^Total/).locator('..').textContent()
+  const before = await page.getByRole('main').locator('dt', { hasText: /^Total$/ }).locator('..').textContent()
   await page.evaluate(() => fetch('/api/__mock/nft/2', { method: 'POST', body: JSON.stringify({ priceEth: '9.5', duplicate: true }) }))
   await expect(page.getByRole('status').filter({ hasText: 'NFT 2 atualizado' })).toBeVisible()
-  await expect(page.getByText(/^Total/).locator('..')).not.toHaveText(before ?? '')
+  await expect(page.getByRole('main').locator('dt', { hasText: /^Total$/ }).locator('..')).not.toHaveText(before ?? '')
 })

@@ -8,17 +8,24 @@ import { getDb, resetDb, saveDb, scenario, sha256, type Db } from './db'
 
 const err = (status: number, code: string, message: string, extra: object = {}) => HttpResponse.json({ code, message, ...extra }, { status })
 
-// Cenários de rede configuráveis: localStorage['mock-scenario'] = slow | error | offline | empty
+// Cenários configuráveis (localStorage['mock-scenario'] ou ?scenario= na URL). Todos determinísticos:
+// slow, jitter (padrão fixo de latências, gera respostas fora de ordem), timeout, error (503), error-4xx (429),
+// offline, session-expired, empty, pay-declined, order-timeout, wallet-refuse, favorite-fail.
+const JITTER_MS = [1200, 150, 800, 300, 1500, 100]
+let tick = 0
 async function networkGate() {
   const s = scenario()
   if (s === 'slow') await delay(2500)
-  else if (s === 'jitter') await delay(200 + Math.floor(Math.random() * 1500))
+  else if (s === 'jitter') await delay(JITTER_MS[tick++ % JITTER_MS.length])
+  else if (s === 'timeout') await delay(9000) // maior que o timeout do Axios (8s)
   else await delay(150)
   if (s === 'error') return err(503, 'TRANSIENT', 'Serviço indisponível')
+  if (s === 'error-4xx') return err(429, 'RATE_LIMITED', 'Muitas requisições. Tente novamente em instantes.')
   if (s === 'offline') return HttpResponse.error()
   return null
 }
 async function userFrom(req: Request, db: Db) {
+  if (scenario() === 'session-expired') return null // todo acesso autenticado passa a responder 401
   const t = req.headers.get('authorization')?.replace('Bearer ', '')
   const id = t ? db.sessions[t] : undefined
   return db.users.find((u) => u.id === id) ?? null
@@ -100,7 +107,9 @@ export const handlers = [
     if (!Number.isInteger(qty) || qty < 1) return err(422, 'VALIDATION', 'Quantidade inválida')
     if (qty > nft.stock) return err(409, 'STOCK_CONFLICT', `Apenas ${nft.stock} disponível(is)`)
     const cart = (db.carts[u.id] ??= []); const l = cart.find((x) => x.id === nft.id)
-    l ? (l.qty = qty) : cart.push({ id: nft.id, qty }); saveDb()
+    if (l) l.qty = qty
+    else cart.push({ id: nft.id, qty })
+    saveDb()
     return HttpResponse.json(buildCart(db, u.id))
   }),
   http.delete('/api/cart/items/:id', async ({ request, params }) => {
@@ -128,5 +137,5 @@ export const handlers = [
     emitNft(ev); if (body.duplicate) emitNft(ev)
     return HttpResponse.json(ev)
   }),
-  http.post('/api/__mock/reset', async () => { await resetDb(); return new HttpResponse(null, { status: 204 }) }),
+  http.post('/api/__mock/reset', async () => { tick = 0; await resetDb(); return new HttpResponse(null, { status: 204 }) }),
 ]

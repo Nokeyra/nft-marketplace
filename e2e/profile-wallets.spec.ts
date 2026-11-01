@@ -27,5 +27,5 @@ test('carteiras: remove a secundária e cadastra outra a partir da principal', a
 test('lista de interesse mostra o NFT favoritado', async ({ page }) => {
   await page.goto('/nft/2'); await page.getByRole('button', { name: /Favoritar/ }).click()
   await expect(page.getByRole('button', { name: /Favoritado/ })).toBeVisible()
-  await page.goto('/profile/favorites'); await expect(page.getByRole('link', { name: /Neon Skies/ })).toBeVisible()
+  await page.goto('/profile/favorites'); await expect(page.getByRole('link', { name: /Pixel Pets/ })).toBeVisible()
 })
